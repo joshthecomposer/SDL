@@ -12,16 +12,18 @@ bool is_selecting = false;
 
 int last_frame_time = 0;
 
+struct {
+    float x;
+    float y;
+    float w;
+    float h;
+    float vel_x;
+    float vel_y;
+} ball;
+
 int initialize_window()
 {
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
         fprintf(stderr, "ERROR Initializing SDL.\n");
         return FALSE;
@@ -55,13 +57,19 @@ int initialize_window()
     if (!renderer)
     {
         fprintf(stderr, "Error creating the rednerer");
+        return FALSE;
     }
     return TRUE;
 }
 
 void setup()
 {
-
+    ball.x = 20;
+    ball.y = 20;
+    ball.w = 20;
+    ball.h = 20;
+    ball.vel_x = 180;
+    ball.vel_y = 180;
 }
 
 void process_input()
@@ -112,14 +120,25 @@ void update()
 
     last_frame_time = SDL_GetTicks();
 
+    ball.x += 20.0 * delta_time;
 }
+
 
 void render()
 {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+    SDL_Rect ball_rect = {
+        (int)ball.x,
+        (int)ball.y,
+        (int)ball.w,
+        (int)ball.h};
+
+    SDL_SetRenderDrawColor(renderer, 100, 0, 150, 255);
+    SDL_RenderFillRect(renderer, &ball_rect);
+
+    SDL_SetRenderDrawColor(renderer, 100, 200, 100, 5);
     if (is_selecting)
     {
         SDL_RenderFillRect(renderer, &rect);
@@ -146,6 +165,7 @@ int main(int argc, char *argv[])
         update();
         render();
     }
+
     destroy_game();
     return 0;
 }
